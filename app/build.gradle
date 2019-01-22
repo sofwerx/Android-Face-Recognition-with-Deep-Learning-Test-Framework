@@ -3,6 +3,7 @@ apply plugin: 'net.saliman.cobertura'
 
 android {
     compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "ch.zhaw.facerecognition"
@@ -41,9 +42,9 @@ buildscript {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:23.3.0'
-    implementation 'com.android.support:support-v4:23.3.0'
-    implementation 'ch.zhaw:facerecognitionlibrary:1.5.3'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:support-v4:23.3.0'
+    compile 'ch.zhaw:facerecognitionlibrary:1.5.3'
 }
