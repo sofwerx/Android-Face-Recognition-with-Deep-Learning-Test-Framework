@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+
+  afr-test:
+    container_name: afr-test
+    hostname: afr-test
+    build: .
+    image: afr-test
+

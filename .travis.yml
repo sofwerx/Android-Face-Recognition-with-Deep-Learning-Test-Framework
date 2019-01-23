@@ -1,17 +1,33 @@
+sudo: required
+services:
+- docker
+language: bash
 script:
-- "./gradlew build"
-language: android
-jdk:
-- oraclejdk8
-android:
-  components:
-  - tools
-  - build-tools-23.0.1
-  - android-23
-  - extra-android-m2repository
+- openssl aes-256-cbc -K $encrypted_8319b4a36364_key -iv $encrypted_8319b4a36364_iv -in .dmport.enc -out .dmport -d
+- sudo apt-get -qq update
+- curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+- sudo apt-get install -y nodejs
+- sudo npm install -g @mumbacloud/dmport
+- eval $(dmport --import "$(cat .dmport)")
+- rm -f .dmport
+- docker pull sofwerx/afr-test || true
+- make
+- cp app-debug.apk afr-test-debug-${TRAVIS_TAG}.apk
+- cp app-release-unsigned.apk afr-release-unsigned-${TRAVIS_TAG}.apk
+after_success:
+- docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+- docker push sofwerx/afr-test
+branches:
+  only:
+  - master
+  - "/^v\\d.*$/"
 deploy:
-  provider: bintray
-  file: ".travis_descriptor.json"
-  user: sladomic
-  key:
-    secure: sniav6EuV1bZckwlY2lp0W0fDwSvt6d9SuzWshDlQ7xY21T6a8B8JDa8hlYCrl9ANqNKpN3FwHQnMaeFuZhUrfv/G40rxfUqE9Cm6BKbFXPfQEpUlnKKIDNBA/GphYTpbXnas7h5OLmBgQIafZUsg9y17xweKcYm0GmxcnZiFtuELIOMi+Gp8Uxm3hNOLSLm8mF54azpZDTBZRWDbZXDsesKfSt+yXp2O75VwYxXMSRnl7IBsP1LycHogE7OdzSS/4Qccq4nFqiKH6vC/ZcuFdefMSr6MhkXPVBeeWIdpuRSy+9ha7OFfksHvSwgpFQmCJGjB1E3CJH83EC5TdkreXoc1+lksyqyAcJjK/Dof3aLsdCT/thI1hAO31L7zPuvNRd+ZCDfi+syU0FPfrUqAP8J99bA8+LS6OlC6LjC9wOU8ufwENOxS33B83/aYymP1CMEt71cmaM8eNZvdteDiy6TGstWfJsL+8My4VwJCEAZ2Nk29VHvsmb5ODubyM60epWLFBmF7ZzY8e/uC6cWWY8vGo6BqDwECSQzGl6lWRqMgCjnrqv/WHU0owm8uyz/8YZ/RqpPBjEEE9LZzmmLhyMlKLHBWIhCPGarulO44TDInrNgDwT+mTyn3By9iUyTIPSZcWbXPklZB1dxqoLcRrgwiFsXWBSL0DoT8EQ4VnI=
+  provider: releases
+  skip_cleanup: true
+  api_key: "${GITHUB_TOKEN}"
+  file:
+    - afr-test-debug-${TRAVIS_TAG}.apk
+    - afr-release-unsigned-${TRAVIS_TAG}.apk
+  on:
+    tags: true
+    repo: "${TRAVIS_REPO_SLUG}"
